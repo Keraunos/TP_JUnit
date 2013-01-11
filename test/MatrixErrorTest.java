@@ -47,247 +47,283 @@ public class MatrixErrorTest {
         
         MatrixError amatrix = new MatrixError(nrow, ncol, val1);
         MatrixError result = new MatrixError(nrow, ncol, val2);
-        
         double[][] aarray = new double[nrow][ncol];
         for (int i = 0; i < nrow; i++) {
             for (int j = 0; j < ncol; j++) {
                 aarray[i][j] = val2;
             }
         }
+        
         amatrix.setTwoDarray(aarray);
         
         assertEquals(amatrix.getNcol(), result.getNcol());
         assertEquals(amatrix.getNrow(), result.getNrow());
-        for (int i = 0; i < nrow; i++) {
-            for (int j = 0; j < ncol; j++) {
-                assertEquals(amatrix.getElement(i, j), result.getElement(i, j), 1.0e-7);
-            }
-        }
+        for (int i = 0; i < nrow; i++)
+            for (int j = 0; j < ncol; j++)
+                assertEquals(result.getElement(i, j), amatrix.getElement(i, j), 1.0e-7);
     }
-
-    /**
-     * Test of setElement method, of class MatrixError.
-     */
-    @Test
-    public void testSetElement() {
-        System.out.println("setElement");
-        int i = 0;
-        int j = 0;
-        double aa = 0.0;
-        MatrixError instance = null;
-        instance.setElement(i, j, aa);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    
+    @Test (expected=IllegalArgumentException.class)
+    public void testSetTwoDarray_wrongRow() {
+        System.out.println("--> setTwoDarray with wrong nrow");
+        
+        int nrow = 4, ncol = 5;
+        double val1 = 3.4D;
+        
+        MatrixError amatrix = new MatrixError(nrow, ncol, val1);
+        double[][] aarray = new double[nrow+1][ncol];
+        
+        amatrix.setTwoDarray(aarray);
     }
-
+    
+    @Test (expected=IllegalArgumentException.class)
+    public void testSetTwoDarray_wrongCol() {
+        System.out.println("--> setTwoDarray with wrong ncol");
+        
+        int nrow = 4, ncol = 5;
+        double val1 = 3.4D;
+        
+        MatrixError amatrix = new MatrixError(nrow, ncol, val1);
+        double[][] aarray = new double[nrow][ncol+1];
+        
+        amatrix.setTwoDarray(aarray);
+    }
+    
+    @Test (expected=IllegalArgumentException.class)
+    public void testSetTwoDarray_wrongRowLength() {
+        System.out.println("--> setTwoDarray with different row lengths");
+        
+        int nrow = 4, ncol = 5;
+        double val1 = 3.4D;
+        
+        MatrixError amatrix = new MatrixError(nrow, ncol, val1);
+        double[][] aarray = new double[nrow][ncol];
+        aarray[0] = new double[ncol+1];
+        amatrix.setTwoDarray(aarray);
+    }
+    
+    
     /**
      * Test of setSubMatrix method, of class MatrixError.
      */
     @Test
     public void testSetSubMatrix_5args() {
-        System.out.println("setSubMatrix");
-        int i = 0;
-        int j = 0;
-        int k = 0;
-        int l = 0;
-        double[][] smat = null;
-        MatrixError instance = null;
-        instance.setSubMatrix(i, j, k, l, smat);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("--> setSubMatrix - 5 args");
+        
+        int i = 2,          j = 1;
+        int k = 4,          l = 3;
+        int nrow = k+1,   ncol = l+1;
+        
+        MatrixError matrix = new MatrixError(nrow, ncol, -1.0D);
+        
+        double[][] smat = new double[k-i][l-j];
+        for (int r = 0; r < k-i; r++)
+            for (int c = 0; c < l-j; c++)
+                smat[r][c] = 10*r+c;
+        
+        matrix.setSubMatrix(i, j, k, l, smat);
+        
+        for (int r = 0; r < k-i; r++)
+            for (int c = 0; c < l-j; c++) {
+                assertEquals(smat[r][c], matrix.getElement(i+r, j+c), 1.0e-7);
+            }
+        
     }
+    
+    @Test (expected=IllegalArgumentException.class)
+    public void testSetSubMatrix_5args_wrongRowIndices() {
+        System.out.println("--> setSubMatrix - 5 args with wrong row indices");
+        
+        int i = 2,          j = 1;
+        int k = 1,          l = 3;
+        int nrow = k+1,   ncol = l+1;
+        
+        double[][] smat = new double[i-k][l-j];
+        MatrixError matrix = new MatrixError(nrow, ncol, -1.0);
+        
+        matrix.setSubMatrix(i, j, k, l, smat);
+    }
+    
+    @Test (expected=IllegalArgumentException.class)
+    public void testSetSubMatrix_5args_wrongColIndices() {
+        System.out.println("--> setSubMatrix - 5 args with wrong col indices");
+        
+        int i = 2,          j = 3;
+        int k = 4,          l = 1;
+        int nrow = k+1,   ncol = l+1;
+        
+        double[][] smat = new double[k-i][j-l];
+        MatrixError matrix = new MatrixError(nrow, ncol, -1.0);
+        
+        matrix.setSubMatrix(i, j, k, l, smat);
+    }
+    
 
     /**
      * Test of setSubMatrix method, of class MatrixError.
      */
     @Test
     public void testSetSubMatrix_3args() {
-        System.out.println("setSubMatrix");
-        int[] row = null;
-        int[] col = null;
-        double[][] smat = null;
-        MatrixError instance = null;
-        instance.setSubMatrix(row, col, smat);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("--> setSubMatrix - 3 args");
+        
+        int rowLength = 2, colLength = 3;
+        int nrow = 2*rowLength+1, ncol = 2*colLength+1;
+        
+        MatrixError matrix = new MatrixError(nrow, ncol, 0);
+        
+        int[] row = new int[rowLength];
+        for (int i = 0; i < rowLength; i++)
+            row[i] = 2*i;
+        
+        int[] col = new int[colLength];
+        for (int j = 0; j < colLength; j++)
+            col[j] = 2*j;
+        
+        double[][] smat = new double[rowLength][colLength];
+        for (int i = 0; i < rowLength; i++)
+            for (int j = 0; j < colLength; j++)
+                smat[i][j] = 10*i+j;
+        
+        matrix.setSubMatrix(row, col, smat);
+        
+        for (int i = 0; i < rowLength; i++)
+            for (int j = 0; j < colLength; j++)
+                assertEquals(smat[i][j], matrix.getElement(row[i], col[j]), 1.0e-7);
     }
-
-    /**
-     * Test of getMatrixCheck method, of class MatrixError.
-     */
-    @Test
-    public void testGetMatrixCheck() {
-        System.out.println("getMatrixCheck");
-        MatrixError instance = null;
-        boolean expResult = false;
-        boolean result = instance.getMatrixCheck();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
+    
+    
     /**
      * Test of identityMatrix method, of class MatrixError.
      */
     @Test
     public void testIdentityMatrix() {
-        System.out.println("identityMatrix");
-        int nrow = 0;
-        MatrixError expResult = null;
+        System.out.println("--> identityMatrix");
+        
+        int nrow = 4;
+        
+        MatrixError expResult = new MatrixError(nrow, nrow, 0);
+        for (int i = 0; i < nrow; i++)
+            expResult.setElement(i, i, 1);
+        
         MatrixError result = MatrixError.identityMatrix(nrow);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        for (int i = 0; i < nrow; i++) {
+            for (int j = 0; j < nrow; j++) {
+                assertEquals(expResult.getElement(i, j), result.getElement(i, j), 1.0e-7);
+            }
+        }
+        
     }
-
+    
+    
     /**
      * Test of scalarMatrix method, of class MatrixError.
      */
     @Test
     public void testScalarMatrix() {
-        System.out.println("scalarMatrix");
-        int nrow = 0;
-        double diagconst = 0.0;
-        MatrixError expResult = null;
+        System.out.println("--> scalarMatrix");
+        
+        int nrow = 4;
+        double diagconst = 6.3;
+        
+        MatrixError expResult = new MatrixError(nrow, nrow, 0);
+        for (int i = 0; i < nrow; i++)
+            expResult.setElement(i, i, diagconst);
+        
         MatrixError result = MatrixError.scalarMatrix(nrow, diagconst);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        for (int i = 0; i < nrow; i++) {
+            for (int j = 0; j < nrow; j++) {
+                assertEquals(expResult.getElement(i, j), result.getElement(i, j), 1.0e-7);
+            }
+        }
+        
     }
-
+    
+    
     /**
      * Test of diagonalMatrix method, of class MatrixError.
      */
     @Test
     public void testDiagonalMatrix() {
-        System.out.println("diagonalMatrix");
-        int nrow = 0;
-        double[] diag = null;
-        MatrixError expResult = null;
+        System.out.println("--> diagonalMatrix");
+        
+        int nrow = 4;
+        double[] diag = new double[nrow];
+        for (int i = 0; i < nrow; i++)
+            diag[i] = i+1;
+        
+        MatrixError expResult = new MatrixError(nrow, nrow, 0);
+        for (int i = 0; i < nrow; i++)
+            expResult.setElement(i, i, diag[i]);
+        
         MatrixError result = MatrixError.diagonalMatrix(nrow, diag);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        for (int i = 0; i < nrow; i++) {
+            for (int j = 0; j < nrow; j++) {
+                assertEquals(expResult.getElement(i, j), result.getElement(i, j), 1.0e-7);
+            }
+        }
     }
-
-    /**
-     * Test of getNrow method, of class MatrixError.
-     */
-    @Test
-    public void testGetNrow() {
-        System.out.println("getNrow");
-        MatrixError instance = null;
-        int expResult = 0;
-        int result = instance.getNrow();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    
+    @Test (expected=IllegalArgumentException.class)
+    public void testDiagonalMatrix_wrongDiagLength() {
+        System.out.println("--> diagonalMatrix with wrong diag length");
+        
+        int nrow = 4;
+        double[] diag = new double[nrow + 1]; // add 1 to nrow /!\
+        for (int i = 0; i < nrow; i++)
+            diag[i] = i+1;
+        
+        MatrixError expResult = new MatrixError(nrow, nrow, 0);
+        for (int i = 0; i < nrow; i++)
+            expResult.setElement(i, i, diag[i]);
+        
+        MatrixError result = MatrixError.diagonalMatrix(nrow, diag);
     }
-
-    /**
-     * Test of getNcol method, of class MatrixError.
-     */
-    @Test
-    public void testGetNcol() {
-        System.out.println("getNcol");
-        MatrixError instance = null;
-        int expResult = 0;
-        int result = instance.getNcol();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getArrayReference method, of class MatrixError.
-     */
-    @Test
-    public void testGetArrayReference() {
-        System.out.println("getArrayReference");
-        MatrixError instance = null;
-        double[][] expResult = null;
-        double[][] result = instance.getArrayReference();
-        assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getArrayPointer method, of class MatrixError.
-     */
-    @Test
-    public void testGetArrayPointer() {
-        System.out.println("getArrayPointer");
-        MatrixError instance = null;
-        double[][] expResult = null;
-        double[][] result = instance.getArrayPointer();
-        assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
+    
+    
     /**
      * Test of getArrayCopy method, of class MatrixError.
      */
     @Test
     public void testGetArrayCopy() {
-        System.out.println("getArrayCopy");
-        MatrixError instance = null;
-        double[][] expResult = null;
+        System.out.println("--> getArrayCopy");
+        
+        MatrixError instance = new MatrixError(2, 2, 0);
+        instance.setElement(0, 0, 2.0);
+        instance.setElement(0, 1, -4.0);
+        instance.setElement(1, 0, 3.3);
+        instance.setElement(1, 1, 0.6);
+        
+        double[][] expResult = new double[2][2];
+        expResult[0][0] = 2.0;
+        expResult[0][1] = -4.0;
+        expResult[1][0] = 3.3;
+        expResult[1][1] = 0.6;
+        
         double[][] result = instance.getArrayCopy();
-        assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        assertEquals(expResult[0][0], result[0][0], 1.0e-7);
+        assertEquals(expResult[1][0], result[1][0], 1.0e-7);
+        assertEquals(expResult[0][1], result[0][1], 1.0e-7);
+        assertEquals(expResult[1][1], result[1][1], 1.0e-7);
     }
-
-    /**
-     * Test of getElement method, of class MatrixError.
-     */
-    @Test
-    public void testGetElement() {
-        System.out.println("getElement");
-        int i = 0;
-        int j = 0;
-        MatrixError instance = null;
-        double expResult = 0.0;
-        double result = instance.getElement(i, j);
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getElementCopy method, of class MatrixError.
-     */
-    @Test
-    public void testGetElementCopy() {
-        System.out.println("getElementCopy");
-        int i = 0;
-        int j = 0;
-        MatrixError instance = null;
-        double expResult = 0.0;
-        double result = instance.getElementCopy(i, j);
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getElementPointer method, of class MatrixError.
-     */
-    @Test
-    public void testGetElementPointer() {
-        System.out.println("getElementPointer");
-        int i = 0;
-        int j = 0;
-        MatrixError instance = null;
-        double expResult = 0.0;
-        double result = instance.getElementPointer(i, j);
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
+    
+    
+    
+    
+    
+    
+    /**************************************************************************/
+    /********                **************************************************/
+    /******** END OF MY WORK **************************************************/
+    /********                **************************************************/
+    /**************************************************************************/
+    
+    
+    
+    
     /**
      * Test of getSubMatrix method, of class MatrixError.
      */

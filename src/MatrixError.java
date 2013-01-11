@@ -36,7 +36,8 @@ public class MatrixError {
         this.ncol = ncol;
         this.matrix = new double[nrow][ncol];
         for (int i = 0; i < nrow; i++) {
-            for (int j = 0; j < nrow; j++) {
+            // CORRECTED replaced nrow with ncol:
+            for (int j = 0; j < ncol; j++) {
                 this.matrix[i][j] = constant;
             }
         }
@@ -96,7 +97,8 @@ public class MatrixError {
     // j = column index
     // aa = value of the element
     public void setElement(int i, int j, double aa) {
-        this.matrix[i][i] = aa;
+        // CORRECTED replaced i with j in second [] brackets
+        this.matrix[i][j] = aa;
     }
 
     // Set a sub-matrix starting with column index i, row index j
@@ -108,10 +110,13 @@ public class MatrixError {
         if (j > l) {
             throw new IllegalArgumentException("column indices inverted");
         }
-        int n = k - i + 1, m = j - l + 1;
+        // CORRECTED replaced n=k-i+1, m=j-l+1 with n=k-i, m=l-j
+        int n = k - i, m = l - j;
         for (int p = 0; p < n; p++) {
-            for (int q = 0; q < m; p++) {
-                this.matrix[i + p][j + q] = smat[i][j];
+            // CORRECTED replaced p++ with q++
+            for (int q = 0; q < m; q++) {
+                // CORRECTED replace [i][j] with [p][q]
+                this.matrix[i + p][j + q] = smat[p][q];
             }
         }
     }
@@ -123,7 +128,8 @@ public class MatrixError {
         int n = row.length;
         int m = col.length;
         for (int p = 0; p < n; p++) {
-            for (int q = 0; q < m; p++) {
+            // CORRECTED replaced p++ with q++
+            for (int q = 0; q < m; q++) {
                 this.matrix[row[p]][col[q]] = smat[p][q];
             }
         }
@@ -148,12 +154,9 @@ public class MatrixError {
     public static MatrixError scalarMatrix(int nrow, double diagconst) {
         MatrixError u = new MatrixError(nrow, nrow);
         double[][] uarray = u.getArrayReference();
+        // CORRECTED looped only on diag
         for (int i = 0; i < nrow; i++) {
-            for (int j = i; j < nrow; j++) {
-                if (i == j) {
-                    uarray[i][j] = diagconst;
-                }
-            }
+            uarray[i][i] = diagconst;
         }
         return u;
     }
@@ -166,7 +169,8 @@ public class MatrixError {
         MatrixError u = new MatrixError(nrow, nrow);
         double[][] uarray = u.getArrayReference();
         for (int i = 0; i < nrow; i++) {
-            uarray[i][i] = diag[0];
+            // CORRECTED replaced diag[0] with diag[i]
+            uarray[i][i] = diag[i];
         }
         return u;
     }
@@ -230,16 +234,28 @@ public class MatrixError {
         if (j > l) {
             throw new IllegalArgumentException("column indices inverted");
         }
-        int n = k - i + 1, m = j - l + 1;
+        // CORRECTED replaced n=k-i+1, m=j-l+1 with n=k-i, m=l-j
+        int n = k - i, m = l - j;
         MatrixError smat = new MatrixError(n, m);
-        double[][] sarray = this.getArrayReference();
+        // CORRECTED replaced this. with smat.
+        double[][] sarray = smat.getArrayReference();
         for (int p = 0; p < n; p++) {
-            for (int q = 0; q < m; p++) {
+            for (int q = 0; q < m; q++) {
                 sarray[p][q] = this.matrix[i + p][j + q];
             }
         }
         return smat;
     }
+    
+    
+    
+    /**************************************************************************/
+    /********                **************************************************/
+    /******** END OF MY WORK **************************************************/
+    /********                **************************************************/
+    /**************************************************************************/
+    
+    
 
     // Return a sub-matrix
     // row = array of row indices
